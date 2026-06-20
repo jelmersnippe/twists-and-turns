@@ -1,20 +1,14 @@
 #include "player_system.hpp"
 
-#include "blueprints/particles.hpp"
 #include "core/camera.hpp"
 #include "core/input.hpp"
-#include "core/renderer.hpp"
-#include "core/sound.hpp"
 #include "game_state.hpp"
-#include "globals.hpp"
 
 void Update(Player& player, GameState& state) {
     const float delta_time = GetFrameTime();
 
-    if (input_frame.is_key_down(Key::W)) player.direction += {.x = 0, .y = -1};
-    if (input_frame.is_key_down(Key::S)) player.direction += {.x = 0, .y = 1};
-    if (input_frame.is_key_down(Key::A)) player.direction += {.x = -1, .y = 0};
-    if (input_frame.is_key_down(Key::D)) player.direction += {.x = 1, .y = 0};
+    if (input_frame.is_key_down(Key::Left)) player.direction += {.x = -1, .y = 0};
+    if (input_frame.is_key_down(Key::Right)) player.direction += {.x = 1, .y = 0};
 
     if (player.direction.x == 0 && player.direction.y == 0) {
         player.animation_player.stop();
@@ -49,9 +43,7 @@ void UpdatePlayers(GameState& state) {
 }
 
 void DrawPlayers(const GameState& state) {
-    const Vec2F mouse_position = get_mouse_world_position(state.camera);
-    Vec2F direction = state.player.transform.position.direction_to(mouse_position);
-    bool flipped = direction.x < 0;
+    bool flipped = state.player.direction.x < 0;
 
     state.player.animation_player.draw(
         Vec2F{.x = state.player.transform.position.x, .y = state.player.transform.position.y}, flipped);

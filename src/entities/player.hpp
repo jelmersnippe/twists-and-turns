@@ -5,16 +5,13 @@
 #include "core/transform.hpp"
 #include "globals.hpp"
 
-const float PLAYER_SCALE = 3;
-
 struct Player {
     Transform2D transform;
-    Collider collider =
-        Collider(Rect{.position = Vec2F{.x = -3, .y = -3}, .size = Vec2F{.x = 5, .y = 8}} * PLAYER_SCALE);
+    Collider collider = Collider(Rect{.position = Vec2F{.x = -3, .y = -3}, .size = Vec2F{.x = 5, .y = 8}});
 
     AnimationPlayer animation_player = AnimationPlayer({
-        .sprite = SpriteInfo("player", {.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}, {.x = 8, .y = 9},
-                             {.x = PLAYER_SCALE, .y = PLAYER_SCALE}),
+        .sprite = SpriteInfo("player_walk", {.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}, {.x = 8, .y = 9},
+                             {.x = 1, .y = 1}),
         .frame_count = 4,
     });
 

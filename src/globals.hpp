@@ -2,7 +2,7 @@
 
 #include "core/data.hpp"
 
-const int DEFAULT_SPRITE_SIZE = 16;
+const int DEFAULT_SPRITE_SIZE = 64;
 
 const int SCREEN_WIDTH = 1440;
 const int SCREEN_HEIGHT = 1200;
