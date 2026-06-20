@@ -10,4 +10,8 @@ struct Wall {
     Collider collider =
         Collider(Rect{.position = Vec2F{}, .size = Vec2F{.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}});
     SpriteInfo sprite = {"wall", {.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}, {.x = 1, .y = 1}};
+
+    float previous_rotation;
+    Vec2 previous_grid_position;
+    Vec2 grid_position;
 };

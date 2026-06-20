@@ -10,6 +10,13 @@ struct GameState {
     bool debug_enabled = true;
     bool should_exit = false;
 
+    int grid_size = 10;
+    int previous_rotation = 0;
+    int grid_rotation = 0;
+    bool is_rotating = false;
+    float time_per_rotation = 1.0f;
+    float current_rotation_time = 0.0f;
+
     Player player;
     std::vector<Wall> walls{};
 
