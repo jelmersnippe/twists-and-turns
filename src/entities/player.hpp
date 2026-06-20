@@ -7,11 +7,11 @@
 
 struct Player {
     Transform2D transform;
-    Collider collider = Collider(Rect{.position = Vec2F{.x = -3, .y = -3}, .size = Vec2F{.x = 5, .y = 8}});
+    Collider collider = Collider(
+        Rect{.position = Vec2F{}, .size = Vec2F{.x = DEFAULT_SPRITE_SIZE * 0.7f, .y = DEFAULT_SPRITE_SIZE * 0.7f}});
 
     AnimationPlayer animation_player = AnimationPlayer({
-        .sprite = SpriteInfo("player_walk", {.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}, {.x = 8, .y = 9},
-                             {.x = 1, .y = 1}),
+        .sprite = SpriteInfo("player_walk", {.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}, {.x = 1, .y = 1}),
         .frame_count = 4,
     });
 

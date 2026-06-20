@@ -1,8 +1,19 @@
 #include "player_system.hpp"
 
-#include "core/camera.hpp"
+#include "core/collision.hpp"
 #include "core/input.hpp"
 #include "game_state.hpp"
+#include "globals.hpp"
+
+bool check_collision_walls(const Vec2F& position, const Collider& collider, const std::vector<Wall>& walls) {
+    for (const Wall& wall : walls) {
+        const Collider player_collider = collider.at_position(position);
+        const Collider wall_collider = wall.collider.at_position(wall.transform.position);
+        if (collision_collider_collider(player_collider, wall_collider)) return true;
+    }
+
+    return false;
+}
 
 void Update(Player& player, GameState& state) {
     const float delta_time = GetFrameTime();
@@ -10,30 +21,39 @@ void Update(Player& player, GameState& state) {
     if (input_frame.is_key_down(Key::Left)) player.direction += {.x = -1, .y = 0};
     if (input_frame.is_key_down(Key::Right)) player.direction += {.x = 1, .y = 0};
 
-    if (player.direction.x == 0 && player.direction.y == 0) {
-        player.animation_player.stop();
-    } else {
-        player.animation_player.play();
-    }
-    player.animation_player.update(delta_time);
-
     float speed = player.speed;
 
     Vec2F velocity = player.direction.normalized() * speed * delta_time;
+    velocity.y += GRAVITY * delta_time;
+    if (velocity.y > GRAVITY) { velocity.y = GRAVITY; }
 
     Vec2F new_position = player.transform.position;
 
     new_position.x += velocity.x;
-    // TODO: Re-add collision checks
-    // const CollisionResult collision_x = check_player_collision(state, new_position);
+    const bool collision_x = check_collision_walls(new_position, player.collider, state.walls);
 
     new_position = player.transform.position;
     new_position.y += velocity.y;
-    // TODO: Re-add collision checks
-    // const CollisionResult collision_y = check_player_collision(state, new_position);
 
-    // if (!collision_x.collided) player.position.x += velocity.x;
-    // if (!collision_y.collided) player.position.y += velocity.y;
+    const bool collision_y = check_collision_walls(new_position, player.collider, state.walls);
+
+    if (collision_x) velocity.x = 0;
+    if (collision_y) velocity.y = 0;
+
+    player.transform.position += velocity;
+
+    // In air
+    if (velocity.y != 0) {
+        player.animation_player.current_frame = 1;
+    } else {
+        if (player.direction.x == 0 && player.direction.y == 0) {
+            player.animation_player.stop();
+        } else {
+            player.animation_player.play();
+        }
+
+        player.animation_player.update(delta_time);
+    }
 
     player.direction = {.x = 0, .y = 0};
 }

@@ -4,6 +4,8 @@
 
 const int DEFAULT_SPRITE_SIZE = 64;
 
+const float GRAVITY = 500;
+
 const int SCREEN_WIDTH = 1440;
 const int SCREEN_HEIGHT = 1200;
 const Vec2F SCREEN_SIZE = {.x = SCREEN_WIDTH, .y = SCREEN_HEIGHT};

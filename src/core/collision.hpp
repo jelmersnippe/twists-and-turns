@@ -28,8 +28,17 @@ struct Collider {
                 render_circle(position + this->center, radius, color, true);
                 break;
             case ColliderType::Box:
-                render_rectangle(position + this->rect.position, this->rect.size, color, false, true);
+                render_rectangle(position + this->rect.position, this->rect.size, color, true, true);
                 break;
+        }
+    }
+
+    Collider at_position(Vec2F position) const {
+        switch (this->type) {
+            case ColliderType::Circle:
+                return {this->center + position, this->radius};
+            case ColliderType::Box:
+                return Collider({.position = this->rect.position + position, .size = this->rect.size});
         }
     }
 };
@@ -44,6 +53,22 @@ inline bool collision_point_rect(Vec2F point, Rect rect) {
         {.x = rect.position.x, .y = rect.position.y, .width = rect.size.x, .height = rect.size.y});
 }
 
+inline bool collision_rect_rect(Rect rect, Rect other) {
+    return CheckCollisionRecs(
+        {.x = other.position.x, .y = other.position.y, .width = other.size.x, .height = other.size.y},
+        {.x = rect.position.x, .y = rect.position.y, .width = rect.size.x, .height = rect.size.y});
+}
+
+inline bool collision_circle_rect(Vec2F center, float radius, Rect rect) {
+    return CheckCollisionCircleRec(
+        center.to_raylib(), radius,
+        {.x = rect.position.x, .y = rect.position.y, .width = rect.size.x, .height = rect.size.y});
+}
+
+inline bool collision_circle_circle(Vec2F center, float radius, Vec2F other_center, float other_radius) {
+    return CheckCollisionCircles(center.to_raylib(), radius, other_center.to_raylib(), other_radius);
+}
+
 inline bool collision_point_collider(Vec2F point, Collider collider) {
     switch (collider.type) {
         case ColliderType::Circle:
@@ -51,6 +76,29 @@ inline bool collision_point_collider(Vec2F point, Collider collider) {
             break;
         case ColliderType::Box:
             return collision_point_rect(point, collider.rect);
+            break;
+    }
+}
+
+inline bool collision_collider_collider(Collider collider, Collider other) {
+    switch (collider.type) {
+        case ColliderType::Circle:
+            switch (other.type) {
+                case ColliderType::Circle:
+                    return collision_circle_circle(collider.center, collider.radius, other.center, other.radius);
+                case ColliderType::Box:
+                    return collision_circle_rect(collider.center, collider.radius, other.rect);
+                    break;
+            }
+            break;
+        case ColliderType::Box:
+            switch (other.type) {
+                case ColliderType::Circle:
+                    return collision_circle_rect(collider.center, collider.radius, other.rect);
+                case ColliderType::Box:
+                    return collision_rect_rect(collider.rect, other.rect);
+                    break;
+            }
             break;
     }
 }
