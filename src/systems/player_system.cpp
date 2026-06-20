@@ -37,7 +37,13 @@ void Update(Player& player, GameState& state) {
 
     player.transform.position.x += velocity.x * delta_time;
 
-    if (check_collision_walls(player.transform.position, player.collider, state.walls)) {
+    const auto chunk = std::ranges::find_if(state.chunks, [&player](const Chunk& chunk) {
+        return collision_point_rect(player.transform.position, chunk.world_rect);
+    });
+
+    assert(chunk != state.chunks.end() && "Player not inside of a chunk");
+
+    if (check_collision_walls(player.transform.position, player.collider, chunk->walls)) {
         player.transform.position.x -= velocity.x * delta_time;
         velocity.x = 0;
     }
@@ -45,7 +51,7 @@ void Update(Player& player, GameState& state) {
     if (velocity.x != 0) player.facing_left = velocity.x < 0;
 
     player.transform.position.y += velocity.y * delta_time;
-    if (check_collision_walls(player.transform.position, player.collider, state.walls)) {
+    if (check_collision_walls(player.transform.position, player.collider, chunk->walls)) {
         player.transform.position.y -= velocity.y * delta_time;
 
         if (velocity.y > 0) player.grounded = true;

@@ -3,6 +3,11 @@
 #include "core/data.hpp"
 
 const int DEFAULT_SPRITE_SIZE = 64;
+const Vec2F HALF_TILE = Vec2F{.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE} * 0.5f;
+
+const int GRID_SIZE = 20;
+const int CHUNK_SIZE = 10;
+const int WORLD_CHUNK_SIZE = CHUNK_SIZE * DEFAULT_SPRITE_SIZE;
 
 const int SCREEN_WIDTH = 1440;
 const int SCREEN_HEIGHT = 1200;

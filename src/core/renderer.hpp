@@ -66,6 +66,10 @@ inline void render_rectangle(Vec2F position, Vec2F size, Color color, bool cente
     }
 }
 
+inline void render_rectangle(Rect rect, Color color, bool centered = true, bool outline_only = false) {
+    render_rectangle(rect.position, rect.size, color, centered, outline_only);
+}
+
 inline void render_triangle(Vec2F point_a, Vec2F point_b, Vec2F point_c, Color color) {
     DrawTriangle(point_a.to_raylib(), point_b.to_raylib(), point_c.to_raylib(), color);
 }
