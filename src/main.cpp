@@ -1,0 +1,54 @@
+#include "core/asset_manager.hpp"
+#include "core/input.hpp"
+#include "core/key.hpp"
+#include "core/key_maps.hpp"
+#include "raylib.h"
+#include "scenes/game_scene.hpp"
+#include "systems/scene_manager.hpp"
+
+#include <iostream>
+
+int main() {
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Reverse Tiddy");
+    SetExitKey(KEY_NULL);
+    SetTargetFPS(TARGET_FPS);
+    HideCursor();
+    InitAudioDevice();
+
+    load_sprites();
+    load_sounds();
+    load_shaders();
+
+    KeyMaps::init();
+
+    GameState state = {};
+
+    SCENE_MANAGER.PushScene(state, GAME_SCENE);
+
+    while (!state.should_exit && !WindowShouldClose()) {
+        input_frame.update();
+
+        for (size_t i = 0; i < input_frame.state.key_pressed.size(); i++) {
+            if (input_frame.state.key_pressed[i]) std::cout << "Pressed: " << key_to_string((Key)i) << std::endl;
+        }
+        for (size_t i = 0; i < input_frame.state.mouse_pressed.size(); i++) {
+            if (input_frame.state.mouse_pressed[i]) std::cout << "Pressed: " << mouse_to_string((Mouse)i) << std::endl;
+        }
+
+        if (input_frame.is_key_pressed(Key::F1)) state.debug_enabled = !state.debug_enabled;
+
+        SCENE_MANAGER.Update(state);
+    }
+
+    SCENE_MANAGER.Clear(state);
+
+    CloseAudioDevice();
+
+    unload_sounds();
+    unload_sprites();
+    unload_shaders();
+
+    CloseWindow();
+
+    return 0;
+}
