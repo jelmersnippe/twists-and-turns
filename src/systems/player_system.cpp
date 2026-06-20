@@ -2,8 +2,8 @@
 
 #include "core/collision.hpp"
 #include "core/input.hpp"
+#include "entities/player.hpp"
 #include "game_state.hpp"
-#include "globals.hpp"
 
 bool check_collision_walls(const Vec2F& position, const Collider& collider, const std::vector<Wall>& walls) {
     for (const Wall& wall : walls) {
@@ -15,38 +15,51 @@ bool check_collision_walls(const Vec2F& position, const Collider& collider, cons
     return false;
 }
 
+const float TERMINAL_VELOCITY = 1000;
+const float GRAVITY = 2000;
+
 void Update(Player& player, GameState& state) {
     const float delta_time = GetFrameTime();
+    Vec2F velocity = player.velocity;
 
-    if (input_frame.is_key_down(Key::Left)) player.direction += {.x = -1, .y = 0};
-    if (input_frame.is_key_down(Key::Right)) player.direction += {.x = 1, .y = 0};
+    velocity.x = 0;
 
-    float speed = player.speed;
+    if (input_frame.is_key_down(Key::Left)) velocity.x += -player.speed;
+    if (input_frame.is_key_down(Key::Right)) velocity.x += player.speed;
 
-    Vec2F velocity = player.direction.normalized() * speed * delta_time;
+    if (player.grounded && input_frame.is_key_pressed(Key::Space)) {
+        velocity.y = -player.jump_force;
+        player.grounded = false;
+    }
+
     velocity.y += GRAVITY * delta_time;
-    if (velocity.y > GRAVITY) { velocity.y = GRAVITY; }
+    if (velocity.y > TERMINAL_VELOCITY) velocity.y = TERMINAL_VELOCITY;
 
-    Vec2F new_position = player.transform.position;
+    player.transform.position.x += velocity.x * delta_time;
 
-    new_position.x += velocity.x;
-    const bool collision_x = check_collision_walls(new_position, player.collider, state.walls);
+    if (check_collision_walls(player.transform.position, player.collider, state.walls)) {
+        player.transform.position.x -= velocity.x * delta_time;
+        velocity.x = 0;
+    }
 
-    new_position = player.transform.position;
-    new_position.y += velocity.y;
+    if (velocity.x != 0) player.facing_left = velocity.x < 0;
 
-    const bool collision_y = check_collision_walls(new_position, player.collider, state.walls);
+    player.transform.position.y += velocity.y * delta_time;
+    if (check_collision_walls(player.transform.position, player.collider, state.walls)) {
+        player.transform.position.y -= velocity.y * delta_time;
 
-    if (collision_x) velocity.x = 0;
-    if (collision_y) velocity.y = 0;
+        if (velocity.y > 0) player.grounded = true;
 
-    player.transform.position += velocity;
+        velocity.y = 0;
+    }
+
+    player.velocity = velocity;
 
     // In air
     if (velocity.y != 0) {
         player.animation_player.current_frame = 1;
     } else {
-        if (player.direction.x == 0 && player.direction.y == 0) {
+        if (player.velocity.x == 0) {
             player.animation_player.stop();
         } else {
             player.animation_player.play();
@@ -54,8 +67,6 @@ void Update(Player& player, GameState& state) {
 
         player.animation_player.update(delta_time);
     }
-
-    player.direction = {.x = 0, .y = 0};
 }
 
 void UpdatePlayers(GameState& state) {
@@ -63,10 +74,9 @@ void UpdatePlayers(GameState& state) {
 }
 
 void DrawPlayers(const GameState& state) {
-    bool flipped = state.player.direction.x < 0;
-
     state.player.animation_player.draw(
-        Vec2F{.x = state.player.transform.position.x, .y = state.player.transform.position.y}, flipped);
+        Vec2F{.x = state.player.transform.position.x, .y = state.player.transform.position.y},
+        state.player.facing_left);
 }
 
 void DrawPlayersDebug(const GameState& state) {

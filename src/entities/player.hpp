@@ -5,6 +5,8 @@
 #include "core/transform.hpp"
 #include "globals.hpp"
 
+const float FLOOR_CHECK_RANGE = 2;
+
 struct Player {
     Transform2D transform;
     Collider collider = Collider(
@@ -15,6 +17,9 @@ struct Player {
         .frame_count = 4,
     });
 
-    Vec2F direction = {};
+    Vec2F velocity = {};
+    bool facing_left = false;
     float speed = 200;
+    float jump_force = 800;
+    bool grounded = true;
 };

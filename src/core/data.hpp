@@ -170,4 +170,6 @@ struct Rect {
     Vec2F size;
 
     Rect operator*(const float& value) const { return Rect{.position = position * value, .size = size * value}; }
+
+    Vec2F top_left = this->position - this->size * 0.5f;
 };

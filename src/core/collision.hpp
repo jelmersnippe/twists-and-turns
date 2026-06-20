@@ -50,19 +50,19 @@ inline bool collision_point_circle(Vec2F point, Vec2F center, float radius) {
 inline bool collision_point_rect(Vec2F point, Rect rect) {
     return CheckCollisionPointRec(
         {.x = point.x, .y = point.y},
-        {.x = rect.position.x, .y = rect.position.y, .width = rect.size.x, .height = rect.size.y});
+        {.x = rect.top_left.x, .y = rect.top_left.y, .width = rect.size.x, .height = rect.size.y});
 }
 
 inline bool collision_rect_rect(Rect rect, Rect other) {
     return CheckCollisionRecs(
-        {.x = other.position.x, .y = other.position.y, .width = other.size.x, .height = other.size.y},
-        {.x = rect.position.x, .y = rect.position.y, .width = rect.size.x, .height = rect.size.y});
+        {.x = other.top_left.x, .y = other.top_left.y, .width = other.size.x, .height = other.size.y},
+        {.x = rect.top_left.x, .y = rect.top_left.y, .width = rect.size.x, .height = rect.size.y});
 }
 
 inline bool collision_circle_rect(Vec2F center, float radius, Rect rect) {
     return CheckCollisionCircleRec(
         center.to_raylib(), radius,
-        {.x = rect.position.x, .y = rect.position.y, .width = rect.size.x, .height = rect.size.y});
+        {.x = rect.top_left.x, .y = rect.top_left.y, .width = rect.size.x, .height = rect.size.y});
 }
 
 inline bool collision_circle_circle(Vec2F center, float radius, Vec2F other_center, float other_radius) {

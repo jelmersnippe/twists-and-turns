@@ -62,7 +62,8 @@ void Init(GameState& state) {
         const int wall_place_x = x - box_size.x / 2;
 
         for (int y = 0; y < box_size.y; y++) {
-            if (x != 0 && y != 0 && x != box_size.x - 1 && y != box_size.y - 1) continue;
+            const bool should_place = y == box_size.y - 3 && x == 1;
+            if ((x != 0 && y != 0 && y != box_size.y - 1) && !should_place) continue;
 
             const int wall_place_y = y - box_size.y / 2;
 

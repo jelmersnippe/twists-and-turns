@@ -32,9 +32,9 @@ struct AnimationPlayer {
     }
 
     void stop() {
-        if (!this->playing) return;
-
         this->current_frame = this->begin_frame;
+
+        if (!this->playing) return;
 
         this->playing = false;
     }
