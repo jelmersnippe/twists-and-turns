@@ -2,6 +2,7 @@
 
 #include "core/asset_manager.hpp"
 #include "core/data.hpp"
+#include "core/transform.hpp"
 #include "raylib.h"
 #include <string>
 #include <utility>
@@ -50,6 +51,10 @@ inline void render_sprite(SpriteInfo info, Vec2F center, float angle = 0, Color 
     if (info.should_flip.y) { source.height = -info.size.y; }
 
     DrawTexturePro(sprite, source, dest, origin, angle, color);
+}
+
+inline void render_sprite(SpriteInfo info, Transform2D transform, Color color = WHITE) {
+    render_sprite(info, transform.position, transform.rotation, color);
 }
 
 inline void render_rectangle(Vec2F position, Vec2F size, Color color, bool centered = true, bool outline_only = false) {

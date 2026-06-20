@@ -21,7 +21,7 @@ void Draw(GameState& state) {
     DrawPlayers(state);
 
     for (const Wall& wall : state.walls) {
-        render_sprite(wall.sprite, wall.transform.position);
+        render_sprite(wall.sprite, wall.transform);
     }
 
     DrawPlayersDebug(state);

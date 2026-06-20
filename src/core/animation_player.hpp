@@ -50,11 +50,11 @@ struct AnimationPlayer {
         }
     }
 
-    void draw(Vec2F center, bool flip_x = false) const {
+    void draw(Transform2D transform, bool flip_x = false) const {
         SpriteInfo info_to_render = this->info.sprite;
         info_to_render.should_flip.x = flip_x;
         info_to_render.frame = this->current_frame;
 
-        render_sprite(info_to_render, center);
+        render_sprite(info_to_render, transform);
     }
 };

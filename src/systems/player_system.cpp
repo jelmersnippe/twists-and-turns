@@ -74,9 +74,7 @@ void UpdatePlayers(GameState& state) {
 }
 
 void DrawPlayers(const GameState& state) {
-    state.player.animation_player.draw(
-        Vec2F{.x = state.player.transform.position.x, .y = state.player.transform.position.y},
-        state.player.facing_left);
+    state.player.animation_player.draw(state.player.transform, state.player.facing_left);
 }
 
 void DrawPlayersDebug(const GameState& state) {
