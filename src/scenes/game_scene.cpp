@@ -4,6 +4,7 @@
 #include "core/collision.hpp"
 #include "core/input.hpp"
 #include "core/renderer.hpp"
+#include "core/transform.hpp"
 #include "entities/player.hpp"
 #include "game_state.hpp"
 #include "globals.hpp"
@@ -24,14 +25,14 @@ void Draw(GameState& state) {
         for (const Wall& wall : chunk.walls) {
             render_sprite(wall.sprite, wall.transform);
         }
+        for (const Spike& spike : chunk.spikes) {
+            render_sprite(spike.sprite, spike.transform);
+        }
     }
     for (const Chunk& chunk : state.chunks) {
-        Color color = BLUE;
-        if (!chunk.can_rotate) {
-            color = RED;
-        } else if (chunk.hovered) {
-            color = GREEN;
-        }
+        if (!chunk.hovered) continue;
+
+        Color color = chunk.can_rotate ? BLUE : RED;
         render_rectangle(chunk.world_rect, color, true, true);
     }
 
@@ -42,10 +43,26 @@ void Draw(GameState& state) {
             for (const Wall& wall : chunk.walls) {
                 wall.collider.draw(wall.transform.position);
             }
+            for (const Spike& spike : chunk.spikes) {
+                spike.collider.draw(spike.transform.position);
+            }
         }
     }
 
     EndMode2D();
+}
+
+void rotate_tile(const Chunk& chunk, GridInfo& grid_info, Transform2D& transform, float angle) {
+    grid_info.previous_rotation = transform.rotation;
+    grid_info.previous_position = grid_info.position;
+
+    if (angle < 0) {
+        grid_info.position =
+            Vec2{.x = grid_info.position.y, .y = static_cast<int>(chunk.grid_rect.size.y) - 1 - grid_info.position.x};
+    } else {
+        grid_info.position =
+            Vec2{.x = static_cast<int>(chunk.grid_rect.size.x) - 1 - grid_info.position.y, .y = grid_info.position.x};
+    }
 }
 
 void rotate_chunk(Chunk& chunk, int angle) {
@@ -54,19 +71,13 @@ void rotate_chunk(Chunk& chunk, int angle) {
     chunk.is_rotating = true;
     chunk.current_rotation_time = 0.0f;
     chunk.previous_rotation = chunk.rotation;
-    chunk.rotation = chunk.rotation + angle % 360;
+    chunk.rotation = chunk.rotation + angle;
 
     for (Wall& wall : chunk.walls) {
-        wall.previous_rotation = wall.transform.rotation;
-        wall.previous_grid_position = wall.grid_position;
-
-        if (angle < 0) {
-            wall.grid_position = Vec2{.x = wall.grid_position.y,
-                                      .y = static_cast<int>(chunk.grid_rect.size.y) - 1 - wall.grid_position.x};
-        } else {
-            wall.grid_position = Vec2{.x = static_cast<int>(chunk.grid_rect.size.x) - 1 - wall.grid_position.y,
-                                      .y = wall.grid_position.x};
-        }
+        rotate_tile(chunk, wall.grid_info, wall.transform, static_cast<float>(angle));
+    }
+    for (Spike& spike : chunk.spikes) {
+        rotate_tile(chunk, spike.grid_info, spike.transform, static_cast<float>(angle));
     }
 }
 
@@ -94,6 +105,21 @@ void UpdateInputs(GameState& state) {
     }
 }
 
+void rotate_element(const Chunk& chunk, const GridInfo& grid_info, Transform2D& transform, const float t) {
+    const Vec2F previous_offset = Vec2F::from_vec2(grid_info.previous_position);
+    const Vec2F target_offset = Vec2F::from_vec2(grid_info.position);
+
+    transform.position = chunk.world_rect.top_left +
+                         (Vec2F{
+                              .x = std::lerp(previous_offset.x, target_offset.x, t),
+                              .y = std::lerp(previous_offset.y, target_offset.y, t),
+                          } *
+                          DEFAULT_SPRITE_SIZE) +
+                         HALF_TILE;
+
+    transform.rotation = grid_info.previous_rotation + std::lerp(chunk.previous_rotation, chunk.rotation, t);
+}
+
 void Update(GameState& state) {
     bool is_rotating = false;
 
@@ -110,18 +136,10 @@ void Update(GameState& state) {
         const float t = std::min(chunk.current_rotation_time / state.time_per_rotation, state.time_per_rotation);
 
         for (Wall& wall : chunk.walls) {
-            const Vec2F previous_wall_offset = Vec2F::from_vec2(wall.previous_grid_position);
-            const Vec2F target_wall_offset = Vec2F::from_vec2(wall.grid_position);
-
-            wall.transform.position = chunk.world_rect.top_left +
-                                      (Vec2F{
-                                           .x = std::lerp(previous_wall_offset.x, target_wall_offset.x, t),
-                                           .y = std::lerp(previous_wall_offset.y, target_wall_offset.y, t),
-                                       } *
-                                       DEFAULT_SPRITE_SIZE) +
-                                      HALF_TILE;
-
-            wall.transform.rotation = wall.previous_rotation + std::lerp(chunk.previous_rotation, chunk.rotation, t);
+            rotate_element(chunk, wall.grid_info, wall.transform, t);
+        }
+        for (Spike& spike : chunk.spikes) {
+            rotate_element(chunk, spike.grid_info, spike.transform, t);
         }
 
         if (chunk.current_rotation_time >= state.time_per_rotation) chunk.is_rotating = false;
@@ -166,6 +184,35 @@ void Init(GameState& state) {
 
             for (int x = 0; x < CHUNK_SIZE; x++) {
                 for (int y = 0; y < CHUNK_SIZE; y++) {
+                    const Vec2 grid_position = {.x = x, .y = y};
+                    const Vec2F world_position =
+                        chunk_top_left + Vec2F::from_vec2(grid_position * DEFAULT_SPRITE_SIZE) + HALF_TILE;
+
+                    if (x == 4 && y == 4) {
+                        current_chunk.spikes.push_back(
+                            Spike{.transform = {.position = world_position, .rotation = 90},
+                                  .grid_info = {.previous_position = grid_position, .position = grid_position}});
+                        continue;
+                    }
+                    if (x == 5 && y == 4) {
+                        current_chunk.spikes.push_back(
+                            Spike{.transform = {.position = world_position, .rotation = 180},
+                                  .grid_info = {.previous_position = grid_position, .position = grid_position}});
+                        continue;
+                    }
+                    if (x == 4 && y == 5) {
+                        current_chunk.spikes.push_back(
+                            Spike{.transform = {.position = world_position, .rotation = 270},
+                                  .grid_info = {.previous_position = grid_position, .position = grid_position}});
+                        continue;
+                    }
+                    if (x == 5 && y == 5) {
+                        current_chunk.spikes.push_back(
+                            Spike{.transform = {.position = world_position, .rotation = 0},
+                                  .grid_info = {.previous_position = grid_position, .position = grid_position}});
+                        continue;
+                    }
+
                     const bool should_place = x == 0 || y == 0 || x == CHUNK_SIZE - 1 || y == CHUNK_SIZE - 1;
                     const bool should_not_place =
                         ((x == 0 || x == CHUNK_SIZE - 1) && (y == 3 || y == CHUNK_SIZE - 3)) ||
@@ -173,13 +220,9 @@ void Init(GameState& state) {
 
                     if (should_not_place || !should_place) continue;
 
-                    const Vec2 grid_position = {.x = x, .y = y};
-
                     const Wall wall =
-                        Wall{.transform{.position = chunk_top_left +
-                                                    Vec2F::from_vec2(grid_position * DEFAULT_SPRITE_SIZE) + HALF_TILE},
-                             .previous_grid_position = grid_position,
-                             .grid_position = grid_position};
+                        Wall{.transform = {.position = world_position},
+                             .grid_info = {.previous_position = grid_position, .position = grid_position}};
                     current_chunk.walls.push_back(wall);
                 }
             }

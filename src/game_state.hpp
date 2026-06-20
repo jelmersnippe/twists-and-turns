@@ -2,6 +2,7 @@
 
 #include "core/camera.hpp"
 #include "entities/player.hpp"
+#include "entities/spike.hpp"
 #include "entities/wall.hpp"
 #include "globals.hpp"
 #include <vector>
@@ -13,6 +14,7 @@ struct Chunk {
     int previous_rotation = 0;
     int rotation = 0;
     std::vector<Wall> walls{};
+    std::vector<Spike> spikes{};
     float current_rotation_time = 0.0f;
 
     bool hovered = false;

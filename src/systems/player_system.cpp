@@ -4,12 +4,25 @@
 #include "core/input.hpp"
 #include "entities/player.hpp"
 #include "game_state.hpp"
+#include "scenes/game_over_scene.hpp"
+#include "scenes/game_scene.hpp"
+#include "systems/scene_manager.hpp"
 
 bool check_collision_walls(const Vec2F& position, const Collider& collider, const std::vector<Wall>& walls) {
     for (const Wall& wall : walls) {
         const Collider player_collider = collider.at_position(position);
         const Collider wall_collider = wall.collider.at_position(wall.transform.position);
         if (collision_collider_collider(player_collider, wall_collider)) return true;
+    }
+
+    return false;
+}
+
+bool check_collision_spikes(const Vec2F& position, const Collider& collider, const std::vector<Spike>& spikes) {
+    for (const Spike& spike : spikes) {
+        const Collider player_collider = collider.at_position(position);
+        const Collider spike_collider = spike.collider.at_position(spike.transform.position);
+        if (collision_collider_collider(player_collider, spike_collider)) return true;
     }
 
     return false;
@@ -72,6 +85,10 @@ void Update(Player& player, GameState& state) {
         }
 
         player.animation_player.update(delta_time);
+    }
+
+    if (check_collision_spikes(player.transform.position, player.collider, chunk->spikes)) {
+        SCENE_MANAGER.SetScene(state, GAME_OVER_SCENE);
     }
 }
 
