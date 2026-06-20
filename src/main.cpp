@@ -2,11 +2,21 @@
 #include "core/input.hpp"
 #include "core/key.hpp"
 #include "core/key_maps.hpp"
+#include "level/level_loader.hpp"
 #include "raylib.h"
 #include "scenes/game_scene.hpp"
 #include "systems/scene_manager.hpp"
 
 #include <iostream>
+
+static const std::unordered_map<Color, ColorMapping, ColorHash, ColorEqual> color_map = {
+    {Color{0, 0, 0, 255},
+     [](Vec2 position) { std::cout << "Found Wall at " << position.x << ", " << position.y << std::endl; }},
+    {Color{0, 255, 0, 255},
+     [](Vec2 position) { std::cout << "Found Player at " << position.x << ", " << position.y << std::endl; }},
+    {Color{180, 180, 180, 255},
+     [](Vec2 position) { std::cout << "Found Spike at " << position.x << ", " << position.y << std::endl; }},
+};
 
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Reverse Tiddy");
@@ -24,14 +34,19 @@ int main() {
 
     SCENE_MANAGER.PushScene(state, GAME_SCENE);
 
+    load_level("test_level", color_map);
+
     while (!state.should_exit && !WindowShouldClose()) {
         input_frame.update();
 
-        for (size_t i = 0; i < input_frame.state.key_pressed.size(); i++) {
-            if (input_frame.state.key_pressed[i]) std::cout << "Pressed: " << key_to_string((Key)i) << std::endl;
-        }
-        for (size_t i = 0; i < input_frame.state.mouse_pressed.size(); i++) {
-            if (input_frame.state.mouse_pressed[i]) std::cout << "Pressed: " << mouse_to_string((Mouse)i) << std::endl;
+        if (state.debug_enabled) {
+            for (size_t i = 0; i < input_frame.state.key_pressed.size(); i++) {
+                if (input_frame.state.key_pressed[i]) std::cout << "Pressed: " << key_to_string((Key)i) << std::endl;
+            }
+            for (size_t i = 0; i < input_frame.state.mouse_pressed.size(); i++) {
+                if (input_frame.state.mouse_pressed[i])
+                    std::cout << "Pressed: " << mouse_to_string((Mouse)i) << std::endl;
+            }
         }
 
         if (input_frame.is_key_pressed(Key::F1)) state.debug_enabled = !state.debug_enabled;
