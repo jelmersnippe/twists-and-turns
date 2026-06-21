@@ -8,7 +8,7 @@ struct Scene {
     std::string name;
     void (*init)(GameState&){};
     void (*update)(GameState&){};
-    void (*draw)(GameState&){};
+    void (*draw)(const GameState&){};
     void (*destroy)(GameState&){};
 };
 

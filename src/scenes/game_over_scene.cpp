@@ -41,7 +41,7 @@ void Update(GameState& state) {
     ui.end_ui();
 }
 
-void Draw(GameState&) {
+void Draw(const GameState&) {
     ClearBackground(ColorAlpha(GRAY, 0.6));
 
     ui.draw();

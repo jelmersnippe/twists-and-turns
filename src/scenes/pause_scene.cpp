@@ -50,7 +50,7 @@ void Update(GameState& state) {
     }
 }
 
-void Draw(GameState&) {
+void Draw(const GameState&) {
     ClearBackground(ColorAlpha(GRAY, 0.6));
 
     ui.draw();

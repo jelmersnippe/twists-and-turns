@@ -13,7 +13,11 @@
 
 namespace {
 
-void Draw(GameState& state) {
+void DrawDebug(const GameState& state) {
+    if (!state.debug_enabled) return;
+}
+
+void Draw(const GameState& state) {
     ClearBackground(GRAY);
 
     BeginMode2D(state.camera);
@@ -23,6 +27,7 @@ void Draw(GameState& state) {
 
     DrawPlayersDebug(state);
     DrawChunksDebug(state);
+    DrawDebug(state);
 
     EndMode2D();
 }
@@ -31,11 +36,11 @@ void UpdateInputs(GameState& state) {
     if (input_frame.is_key_pressed(Key::Escape)) SCENE_MANAGER.PushScene(state, PAUSE_SCENE);
     if (input_frame.is_key_pressed(Key::R)) SCENE_MANAGER.SetScene(state, GAME_SCENE);
     if (input_frame.is_key_pressed(Key::F5)) {
-        state.current_level_index -= 1;
+        state.current_level_index = (state.current_level_index - 1) % state.levels.size();
         SCENE_MANAGER.SetScene(state, GAME_SCENE);
     }
     if (input_frame.is_key_pressed(Key::F6)) {
-        state.current_level_index += 1;
+        state.current_level_index = (state.current_level_index + 1) % state.levels.size();
         SCENE_MANAGER.SetScene(state, GAME_SCENE);
     }
 

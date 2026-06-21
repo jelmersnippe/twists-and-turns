@@ -31,6 +31,9 @@ void rotate_chunk(Chunk& chunk, int angle, Player& player) {
     for (Spike& spike : chunk.spikes) {
         rotate_tile(chunk, spike.grid_info, spike.transform, static_cast<float>(angle));
     }
+    for (Door& door : chunk.doors) {
+        rotate_tile(chunk, door.grid_info, door.transform, static_cast<float>(angle));
+    }
     if (chunk.has_player) {
         player.prev_position = player.transform.position;
 
@@ -65,6 +68,13 @@ void UpdateChunks(GameState& state) {
         chunk.hovered = collision_point_rect(get_mouse_world_position(state.camera), chunk.world_rect);
         chunk.has_player = collision_rect_rect(state.player.collider.rect, chunk.world_rect);
 
+        for (Door& door : chunk.doors) {
+            door.opened = state.enemies.data.size() == 0 ||
+                          std::ranges::all_of(state.enemies.data, [](const Slot<Enemy>& slot) { return !slot.alive; });
+
+            door.sprite.name = door.opened ? "door_open" : "door";
+        }
+
         if (!chunk.is_rotating) continue;
 
         chunk.current_rotation_time += get_delta_time();
@@ -76,6 +86,9 @@ void UpdateChunks(GameState& state) {
         }
         for (Spike& spike : chunk.spikes) {
             rotate_element(chunk, spike.grid_info, spike.transform, t);
+        }
+        for (Door& door : chunk.doors) {
+            rotate_element(chunk, door.grid_info, door.transform, t);
         }
 
         if (chunk.has_player) {
@@ -97,6 +110,9 @@ void DrawChunks(const GameState& state) {
         for (const Spike& spike : chunk.spikes) {
             render_sprite(spike.sprite, spike.transform);
         }
+        for (const Door& door : chunk.doors) {
+            render_sprite(door.sprite, door.transform);
+        }
     }
     for (const Chunk& chunk : state.chunks) {
         if (!chunk.hovered) continue;
@@ -113,6 +129,9 @@ void DrawChunksDebug(const GameState& state) {
             }
             for (const Spike& spike : chunk.spikes) {
                 spike.collider.draw(spike.transform.position);
+            }
+            for (const Door& door : chunk.doors) {
+                door.collider.draw(door.transform.position);
             }
         }
     }

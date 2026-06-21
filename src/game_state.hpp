@@ -1,6 +1,9 @@
 #pragma once
 
 #include "core/camera.hpp"
+#include "core/entity_pool.hpp"
+#include "entities/door.hpp"
+#include "entities/enemy.hpp"
 #include "entities/player.hpp"
 #include "entities/spike.hpp"
 #include "entities/wall.hpp"
@@ -30,6 +33,7 @@ struct Chunk {
     int rotation = 0;
     std::vector<Wall> walls{};
     std::vector<Spike> spikes{};
+    std::vector<Door> doors{};
     float current_rotation_time = 0.0f;
 
     bool has_player = false;
@@ -40,6 +44,8 @@ struct GameState {
     std::vector<LevelInfo> levels = {};
     bool debug_enabled = false;
     bool should_exit = false;
+
+    EntityPool<Enemy> enemies;
 
     int current_level_index = 0;
 
@@ -68,6 +74,8 @@ struct GameState {
         const LevelInfo& info = levels[this->current_level_index];
 
         const Vec2F world_chunk_size = Vec2F::from_vec2(info.chunk_size) * DEFAULT_SPRITE_SIZE;
+
+        bool has_door = false;
 
         for (int chunk_y = 0; chunk_y < info.size.y / info.chunk_size.y; chunk_y++) {
             for (int chunk_x = 0; chunk_x < info.size.x / info.chunk_size.x; chunk_x++) {
@@ -103,6 +111,22 @@ struct GameState {
 
                             this->player = player;
                             current_chunk.has_player = true;
+                        } else if (ColorIsEqual(color, Color(255, 255, 0, 255))) {
+                            assert(!has_door && "Level can only have one door");
+
+                            const Door door = Door{
+                                .transform = {.position = world_position},
+                                .grid_info = {.previous_position = {.x = x, .y = y}, .position = {.x = x, .y = y}}};
+
+                            current_chunk.doors.push_back(door);
+                            has_door = true;
+                        } else if (ColorIsEqual(color, Color(180, 180, 180, 255))) {
+                            // TODO: Calculate rotation. Probably set these in an array to process later
+                            // Check neighbors for already rotated spikes, otherwise check for walls
+                            const Spike spike = Spike{
+                                .transform = {.position = world_position},
+                                .grid_info = {.previous_position = {.x = x, .y = y}, .position = {.x = x, .y = y}}};
+                            current_chunk.spikes.push_back(spike);
                         }
                     }
                 }
@@ -110,5 +134,7 @@ struct GameState {
                 this->chunks.push_back(current_chunk);
             }
         }
+
+        assert(has_door && "Level needs one door");
     }
 };

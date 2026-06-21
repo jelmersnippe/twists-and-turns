@@ -9,6 +9,16 @@
 #include "scenes/game_scene.hpp"
 #include "systems/scene_manager.hpp"
 
+bool check_collision_doors(const Vec2F& position, const Collider& collider, const std::vector<Door>& doors) {
+    for (const Door& door : doors) {
+        const Collider player_collider = collider.at_position(position);
+        const Collider wall_collider = door.collider.at_position(door.transform.position);
+        if (collision_collider_collider(player_collider, wall_collider)) return true;
+    }
+
+    return false;
+}
+
 bool check_collision_walls(const Vec2F& position, const Collider& collider, const std::vector<Wall>& walls) {
     for (const Wall& wall : walls) {
         const Collider player_collider = collider.at_position(position);
@@ -87,7 +97,12 @@ void Update(Player& player, GameState& state) {
     }
 
     if (check_collision_spikes(player.transform.position, player.collider, chunk->spikes)) {
-        SCENE_MANAGER.SetScene(state, GAME_OVER_SCENE);
+        SCENE_MANAGER.SetScene(state, GAME_SCENE);
+    }
+
+    if (chunk->doors.size() > 0 && check_collision_doors(player.transform.position, player.collider, chunk->doors)) {
+        state.current_level_index = (state.current_level_index + 1) % state.levels.size();
+        SCENE_MANAGER.SetScene(state, GAME_SCENE);
     }
 }
 
