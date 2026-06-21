@@ -5,8 +5,6 @@
 #include "core/transform.hpp"
 #include "globals.hpp"
 
-const float FLOOR_CHECK_RANGE = 2;
-
 struct Player {
     Transform2D transform;
     Collider collider = Collider(

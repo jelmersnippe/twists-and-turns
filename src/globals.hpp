@@ -2,6 +2,11 @@
 
 #include "core/data.hpp"
 
+const float FLOOR_CHECK_RANGE = 2;
+
+const float TERMINAL_VELOCITY = 1000;
+const float GRAVITY = 2000;
+
 const int DEFAULT_SPRITE_SIZE = 64;
 const Vec2F HALF_TILE = Vec2F{.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE} * 0.5f;
 

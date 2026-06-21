@@ -7,6 +7,7 @@
 #include "raylib.h"
 #include "scenes/pause_scene.hpp"
 #include "systems/chunk_system.hpp"
+#include "systems/enemy_system.hpp"
 #include "systems/player_system.hpp"
 #include <algorithm>
 
@@ -21,11 +22,13 @@ void Draw(const GameState& state) {
 
     BeginMode2D(state.camera);
 
-    DrawPlayers(state);
     DrawChunks(state);
+    DrawEnemies(state);
+    DrawPlayers(state);
 
-    DrawPlayersDebug(state);
     DrawChunksDebug(state);
+    DrawEnemiesDebug(state);
+    DrawPlayersDebug(state);
     DrawDebug(state);
 
     EndMode2D();
@@ -35,7 +38,7 @@ void UpdateInputs(GameState& state) {
     if (input_frame.is_key_pressed(Key::Escape)) SCENE_MANAGER.PushScene(state, PAUSE_SCENE);
     if (input_frame.is_key_pressed(Key::R)) SCENE_MANAGER.SetScene(state, GAME_SCENE);
     if (input_frame.is_key_pressed(Key::F5)) {
-        state.current_level_index = (state.current_level_index - 1) % state.levels.size();
+        state.current_level_index = ((state.current_level_index - 1) + state.levels.size()) % state.levels.size();
         SCENE_MANAGER.SetScene(state, GAME_SCENE);
     }
     if (input_frame.is_key_pressed(Key::F6)) {
@@ -71,6 +74,7 @@ void Update(GameState& state) {
 
     UpdateInputs(state);
 
+    UpdateEnemies(state);
     UpdatePlayers(state);
 }
 

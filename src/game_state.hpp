@@ -12,6 +12,36 @@
 #include "raylib.h"
 #include <vector>
 
+inline bool check_collision_doors(const Vec2F& position, const Collider& collider, const std::vector<Door>& doors) {
+    for (const Door& door : doors) {
+        const Collider player_collider = collider.at_position(position);
+        const Collider wall_collider = door.collider.at_position(door.transform.position);
+        if (collision_collider_collider(player_collider, wall_collider)) return true;
+    }
+
+    return false;
+}
+
+inline bool check_collision_walls(const Vec2F& position, const Collider& collider, const std::vector<Wall>& walls) {
+    for (const Wall& wall : walls) {
+        const Collider player_collider = collider.at_position(position);
+        const Collider wall_collider = wall.collider.at_position(wall.transform.position);
+        if (collision_collider_collider(player_collider, wall_collider)) return true;
+    }
+
+    return false;
+}
+
+inline bool check_collision_spikes(const Vec2F& position, const Collider& collider, const std::vector<Spike>& spikes) {
+    for (const Spike& spike : spikes) {
+        const Collider player_collider = collider.at_position(position);
+        const Collider spike_collider = spike.collider.at_position(spike.transform.position);
+        if (collision_collider_collider(player_collider, spike_collider)) return true;
+    }
+
+    return false;
+}
+
 struct ColorHash {
     std::size_t operator()(const Color& c) const { return (c.r << 24) | (c.g << 16) | (c.b << 8) | c.a; }
 };
@@ -63,6 +93,7 @@ struct GameState {
     void Reset() {
         player = {};
         chunks = {};
+        enemies = {};
         camera.target = {.x = 0, .y = 0};
     }
 
@@ -129,6 +160,8 @@ struct GameState {
                                 .transform = {.position = world_position},
                                 .grid_info = {.previous_position = {.x = x, .y = y}, .position = {.x = x, .y = y}}};
                             current_chunk.spikes.push_back(spike);
+                        } else if (ColorIsEqual(color, Color(255, 0, 0, 255))) {
+                            CreateEntity(this->enemies, Enemy{.transform = {.position = world_position}});
                         }
                     }
                 }
