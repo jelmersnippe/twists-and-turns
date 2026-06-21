@@ -11,11 +11,9 @@
 LevelFileInfo get_level_file_info(std::string_view str) {
     const auto pos3 = str.rfind('_');
     const auto pos2 = str.rfind('_', pos3 - 1);
-    const auto pos1 = str.rfind('_', pos2 - 1);
 
-    return {.index = std::stoi(str.substr(pos1 + 1, pos2 - pos1 - 1).data()),
-            .chunk_size_x = std::stoi(str.substr(pos2 + 1, pos3 - pos2 - 1).data()),
-            .chunk_size_y = std::stoi(str.substr(pos3 + 1).data())};
+    return {.index = std::stoi(str.substr(pos2 + 1, pos3 - pos2 - 1).data()),
+            .chunk_size = std::stoi(str.substr(pos3 + 1).data())};
 }
 
 LevelInfo parse_level_file(const std::filesystem::path& path) {
@@ -25,11 +23,11 @@ LevelInfo parse_level_file(const std::filesystem::path& path) {
 
     std::vector<Color> level_colors;
 
-    const auto [index, chunk_size_x, chunk_size_y] = get_level_file_info(path.stem().string());
+    const auto [index, chunk_size] = get_level_file_info(path.stem().string());
     const Vec2 size = {.x = image.width, .y = image.height};
 
-    assert(image.width % chunk_size_x == 0 && "Level width is not dividable by chunk size x");
-    assert(image.height % chunk_size_y == 0 && "Level height is not dividable by chunk size y");
+    assert(image.width % chunk_size == 0 && "Level width is not dividable by chunk size x");
+    assert(image.height % chunk_size == 0 && "Level height is not dividable by chunk size y");
 
     for (int y = 0; y < image.height; y++) {
         for (int x = 0; x < image.width; x++) {
@@ -44,7 +42,7 @@ LevelInfo parse_level_file(const std::filesystem::path& path) {
     UnloadImageColors(colors);
     UnloadImage(image);
 
-    return {.index = index, .size = size, .chunk_size = {.x = chunk_size_x, .y = chunk_size_y}, .colors = level_colors};
+    return {.index = index, .size = size, .chunk_size = chunk_size, .colors = level_colors};
 }
 
 std::vector<LevelInfo> load_levels() {

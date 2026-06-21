@@ -1,6 +1,5 @@
 #include "scenes/game_scene.hpp"
 
-#include "core/camera.hpp"
 #include "core/input.hpp"
 #include "core/transform.hpp"
 #include "entities/player.hpp"

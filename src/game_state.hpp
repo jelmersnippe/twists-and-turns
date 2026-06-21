@@ -73,25 +73,27 @@ struct GameState {
 
         const LevelInfo& info = levels[this->current_level_index];
 
-        const Vec2F world_chunk_size = Vec2F::from_vec2(info.chunk_size) * DEFAULT_SPRITE_SIZE;
+        const Vec2F chunk_size =
+            Vec2F{.x = static_cast<float>(info.chunk_size), .y = static_cast<float>(info.chunk_size)};
+        const Vec2F world_chunk_size = chunk_size * DEFAULT_SPRITE_SIZE;
 
         bool has_door = false;
 
-        for (int chunk_y = 0; chunk_y < info.size.y / info.chunk_size.y; chunk_y++) {
-            for (int chunk_x = 0; chunk_x < info.size.x / info.chunk_size.x; chunk_x++) {
-                const Vec2 chunk_grid_top_left = {.x = chunk_x * info.chunk_size.x, .y = chunk_y * info.chunk_size.y};
+        for (int chunk_y = 0; chunk_y < info.size.y / info.chunk_size; chunk_y++) {
+            for (int chunk_x = 0; chunk_x < info.size.x / info.chunk_size; chunk_x++) {
+                const Vec2 chunk_grid_top_left = {.x = chunk_x * info.chunk_size, .y = chunk_y * info.chunk_size};
 
                 const Vec2F chunk_world_top_left = Vec2F::from_vec2(chunk_grid_top_left) * DEFAULT_SPRITE_SIZE;
 
                 const Vec2F chunk_center = chunk_world_top_left + (world_chunk_size * 0.5f);
 
-                Chunk current_chunk = {.world_rect = {.center = chunk_center, .size = world_chunk_size},
-                                       .grid_rect = {.center = Vec2F::from_vec2(chunk_grid_top_left) +
-                                                               Vec2F::from_vec2(info.chunk_size) * 0.5f,
-                                                     .size = Vec2F::from_vec2(info.chunk_size)}};
+                Chunk current_chunk = {
+                    .world_rect = {.center = chunk_center, .size = world_chunk_size},
+                    .grid_rect = {.center = Vec2F::from_vec2(chunk_grid_top_left) + chunk_size * 0.5f,
+                                  .size = chunk_size}};
 
-                for (int y = 0; y < info.chunk_size.y; y++) {
-                    for (int x = 0; x < info.chunk_size.x; x++) {
+                for (int y = 0; y < info.chunk_size; y++) {
+                    for (int x = 0; x < info.chunk_size; x++) {
                         const Vec2 grid_position = chunk_grid_top_left + Vec2{.x = x, .y = y};
                         const Vec2F world_position = Vec2F::from_vec2(grid_position) * DEFAULT_SPRITE_SIZE + HALF_TILE;
 
