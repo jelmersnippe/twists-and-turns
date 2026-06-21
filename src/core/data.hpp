@@ -172,4 +172,6 @@ struct Rect {
     Rect operator*(const float& value) const { return Rect{.center = center * value, .size = size * value}; }
 
     Vec2F top_left = this->center - this->size * 0.5f;
+
+    Rect at_position(const Vec2F position) const { return {.center = center + position, .size = size}; }
 };
