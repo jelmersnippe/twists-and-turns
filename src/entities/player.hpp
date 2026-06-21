@@ -21,4 +21,7 @@ struct Player {
     bool facing_left = false;
     float speed = 200;
     bool grounded = true;
+
+    Vec2F target_position;
+    Vec2F prev_position;
 };

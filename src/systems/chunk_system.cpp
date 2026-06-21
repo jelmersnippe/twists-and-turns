@@ -9,7 +9,8 @@ void rotate_tile(const Chunk& chunk, GridInfo& grid_info, Transform2D& transform
     grid_info.previous_position = grid_info.position;
 
     if (angle < 0) {
-        grid_info.position = Vec2{.x = grid_info.position.y, .y = static_cast<int>(chunk.grid_rect.size.y) - 1 - grid_info.position.x};
+        grid_info.position =
+            Vec2{.x = grid_info.position.y, .y = static_cast<int>(chunk.grid_rect.size.y) - 1 - grid_info.position.x};
     } else {
         grid_info.position =
             Vec2{.x = static_cast<int>(chunk.grid_rect.size.x) - 1 - grid_info.position.y, .y = grid_info.position.x};
@@ -31,13 +32,15 @@ void rotate_chunk(Chunk& chunk, int angle, Player& player) {
         rotate_tile(chunk, spike.grid_info, spike.transform, static_cast<float>(angle));
     }
     if (chunk.has_player) {
+        player.prev_position = player.transform.position;
+
         Vec2F player_offset = player.transform.position - chunk.world_rect.center;
         if (angle < 0) {
-            player_offset = Vec2F{.x=player_offset.y, .y=-player_offset.x};
-            player.transform.position = player_offset + chunk.world_rect.center;
+            player_offset = Vec2F{.x = player_offset.y, .y = -player_offset.x};
+            player.target_position = player_offset + chunk.world_rect.center;
         } else {
-            player_offset = Vec2F{.x=-player_offset.y, .y=player_offset.x};
-            player.transform.position = player_offset + chunk.world_rect.center;
+            player_offset = Vec2F{.x = -player_offset.y, .y = player_offset.x};
+            player.target_position = player_offset + chunk.world_rect.center;
         }
     }
 }
@@ -73,6 +76,13 @@ void UpdateChunks(GameState& state) {
         }
         for (Spike& spike : chunk.spikes) {
             rotate_element(chunk, spike.grid_info, spike.transform, t);
+        }
+
+        if (chunk.has_player) {
+            state.player.transform.position = Vec2F{
+                .x = std::lerp(state.player.prev_position.x, state.player.target_position.x, t),
+                .y = std::lerp(state.player.prev_position.y, state.player.target_position.y, t),
+            };
         }
 
         if (chunk.current_rotation_time >= state.time_per_rotation) chunk.is_rotating = false;
