@@ -40,11 +40,6 @@ void Update(Player& player, GameState& state) {
     if (input_frame.is_key_down(Key::Left)) velocity.x += -player.speed;
     if (input_frame.is_key_down(Key::Right)) velocity.x += player.speed;
 
-    if (player.grounded && input_frame.is_key_pressed(Key::Space)) {
-        velocity.y = -player.jump_force;
-        player.grounded = false;
-    }
-
     velocity.y += GRAVITY * delta_time;
     if (velocity.y > TERMINAL_VELOCITY) velocity.y = TERMINAL_VELOCITY;
 

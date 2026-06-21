@@ -20,6 +20,5 @@ struct Player {
     Vec2F velocity = {};
     bool facing_left = false;
     float speed = 200;
-    float jump_force = 800;
     bool grounded = true;
 };
