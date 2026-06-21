@@ -10,7 +10,13 @@
 #include <unordered_map>
 
 void load_sprites() {
+    std::cout << "Loading sprites" << std::endl;
     const std::filesystem::path target_path{"res/sprites"};
+
+    if (!std::filesystem::is_directory(target_path)) {
+        std::cout << "No sprite directory" << std::endl;
+        return;
+    };
 
     try {
         for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator{target_path}) {
@@ -30,6 +36,7 @@ void load_sprites() {
     } catch (std::filesystem::filesystem_error const& ex) {
         std::cout << "Error occured during file operation!\n" << ex.what() << std::endl;
     }
+    std::cout << "Finished loading sprites" << std::endl;
 }
 
 void unload_sprites() {
@@ -46,7 +53,13 @@ Texture2D get_sprite(const std::string& sprite_name) {
 }
 
 void load_sounds() {
+    std::cout << "Loading sounds" << std::endl;
     const std::filesystem::path target_path{"res/sounds"};
+
+    if (!std::filesystem::is_directory(target_path)) {
+        std::cout << "No sound directory" << std::endl;
+        return;
+    };
 
     try {
         for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator{target_path}) {
@@ -65,6 +78,7 @@ void load_sounds() {
     } catch (std::filesystem::filesystem_error const& ex) {
         std::cout << "Error occured during file operation!\n" << ex.what() << std::endl;
     }
+    std::cout << "Finished loading sounds" << std::endl;
 }
 
 void unload_sounds() {
@@ -81,7 +95,13 @@ Sound get_sound(const std::string& sound_name) {
 }
 
 void load_shaders() {
+    std::cout << "Loading shaders" << std::endl;
     const std::filesystem::path target_path{"res/shaders"};
+
+    if (!std::filesystem::is_directory(target_path)) {
+        std::cout << "No shader directory" << std::endl;
+        return;
+    };
 
     try {
         for (std::filesystem::directory_entry const& dir_entry : std::filesystem::directory_iterator{target_path}) {
@@ -98,6 +118,7 @@ void load_shaders() {
     } catch (std::filesystem::filesystem_error const& ex) {
         std::cout << "Error occured during file operation!\n" << ex.what() << std::endl;
     }
+    std::cout << "Finished loading shaders" << std::endl;
 }
 
 void unload_shaders() {
