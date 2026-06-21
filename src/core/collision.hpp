@@ -55,7 +55,7 @@ inline bool collision_point_rect(Vec2F point, Rect rect) {
 
 inline bool collision_rect_rect(Rect rect, Rect other) {
     return CheckCollisionRecs(
-        {.x = other.top_left.x, .y = other.top_left.y, .width = other.size.x, .height = other.size.y},
+        {.x = other.top_left.x, .y = o:wqather.top_left.y, .width = other.size.x, .height = other.size.y},
         {.x = rect.top_left.x, .y = rect.top_left.y, .width = rect.size.x, .height = rect.size.y});
 }
 

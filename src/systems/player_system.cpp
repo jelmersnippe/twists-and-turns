@@ -6,6 +6,7 @@
 #include "entities/player.hpp"
 #include "game_state.hpp"
 #include "scenes/game_over_scene.hpp"
+#include "scenes/game_scene.hpp"
 #include "systems/scene_manager.hpp"
 
 bool check_collision_walls(const Vec2F& position, const Collider& collider, const std::vector<Wall>& walls) {
@@ -48,6 +49,11 @@ void Update(Player& player, GameState& state) {
     const auto chunk = std::ranges::find_if(state.chunks, [&player](const Chunk& chunk) {
         return collision_point_rect(player.transform.position, chunk.world_rect);
     });
+
+    if (chunk == state.chunks.end()) {
+        SCENE_MANAGER.SetScene(state, GAME_SCENE);
+        return;
+    }
 
     if (check_collision_walls(player.transform.position, player.collider, chunk->walls)) {
         player.transform.position.x -= velocity.x * delta_time;
