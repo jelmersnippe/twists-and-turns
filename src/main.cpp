@@ -2,21 +2,11 @@
 #include "core/input.hpp"
 #include "core/key.hpp"
 #include "core/key_maps.hpp"
-#include "level/level_loader.hpp"
 #include "raylib.h"
 #include "scenes/game_scene.hpp"
 #include "systems/scene_manager.hpp"
 
 #include <iostream>
-
-static const std::unordered_map<Color, ColorMapping, ColorHash, ColorEqual> color_map = {
-    {Color{0, 0, 0, 255},
-     [](Vec2 position) { std::cout << "Found Wall at " << position.x << ", " << position.y << std::endl; }},
-    {Color{0, 255, 0, 255},
-     [](Vec2 position) { std::cout << "Found Player at " << position.x << ", " << position.y << std::endl; }},
-    {Color{180, 180, 180, 255},
-     [](Vec2 position) { std::cout << "Found Spike at " << position.x << ", " << position.y << std::endl; }},
-};
 
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Reverse Tiddy");
@@ -31,10 +21,10 @@ int main() {
     KeyMaps::init();
 
     GameState state = {};
+    state.current_level_index = 0;
+    state.levels = load_levels();
 
     SCENE_MANAGER.PushScene(state, GAME_SCENE);
-
-    load_level("test_level", color_map);
 
     while (!state.should_exit && !WindowShouldClose()) {
         input_frame.update();

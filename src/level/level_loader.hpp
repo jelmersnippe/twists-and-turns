@@ -4,17 +4,19 @@
 #include "raylib.h"
 #include <string>
 #include <unordered_map>
+#include <vector>
 
-struct ColorHash {
-    std::size_t operator()(const Color& c) const { return (c.r << 24) | (c.g << 16) | (c.b << 8) | c.a; }
+struct LevelInfo {
+    int index;
+    Vec2 size;
+    Vec2 chunk_size;
+    std::vector<Color> colors;
 };
 
-struct ColorEqual {
-    bool operator()(const Color& a, const Color& b) const {
-        return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
-    }
+struct LevelFileInfo {
+    int index;
+    int chunk_size_x;
+    int chunk_size_y;
 };
 
-using ColorMapping = void (*)(Vec2 position);
-using ColorMap = std::unordered_map<Color, ColorMapping, ColorHash, ColorEqual>;
-void load_level(const std::string name, const ColorMap& map);
+std::vector<LevelInfo> load_levels();
