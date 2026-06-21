@@ -38,23 +38,19 @@ void Update(Slot<Enemy>& slot, GameState& state) {
         return;
     }
 
-    if (velocity.x != 0 && check_collision_walls(enemy.transform.position, enemy.collider, chunk->walls)) {
+    if (check_collision_walls(enemy.transform.position, enemy.collider, chunk->walls)) {
         enemy.transform.position.x -= velocity.x * delta_time;
-        velocity.x = 0;
         enemy.facing_left = !enemy.facing_left;
+        velocity.x = 0;
     }
-
-    if (velocity.x != 0) enemy.facing_left = velocity.x < 0;
 
     enemy.transform.position.y += velocity.y * delta_time;
     if (check_collision_walls(enemy.transform.position, enemy.collider, chunk->walls)) {
         enemy.transform.position.y -= velocity.y * delta_time;
-
-        if (velocity.y > 0) enemy.grounded = true;
-
         velocity.y = 0;
     }
 
+    enemy.grounded = velocity.y == 0;
     enemy.velocity = velocity;
 
     // In air

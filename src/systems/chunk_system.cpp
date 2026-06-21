@@ -17,7 +17,7 @@ void rotate_tile(const Chunk& chunk, GridInfo& grid_info, Transform2D& transform
     }
 }
 
-void rotate_chunk(Chunk& chunk, int angle, Player& player) {
+void rotate_chunk(Chunk& chunk, int angle, GameState& state) {
     if (chunk.is_rotating) return;
 
     chunk.is_rotating = true;
@@ -34,6 +34,27 @@ void rotate_chunk(Chunk& chunk, int angle, Player& player) {
     for (Door& door : chunk.doors) {
         rotate_tile(chunk, door.grid_info, door.transform, static_cast<float>(angle));
     }
+
+    for (Slot<Enemy>& slot : state.enemies.data) {
+        if (!slot.alive ||
+            !collision_rect_rect(slot.ref.collider.rect.at_position(slot.ref.transform.position), chunk.world_rect))
+            continue;
+
+        Enemy& enemy = slot.ref;
+
+        enemy.prev_position = enemy.transform.position;
+
+        Vec2F enemy_offset = enemy.transform.position - chunk.world_rect.center;
+        if (angle < 0) {
+            enemy_offset = Vec2F{.x = enemy_offset.y, .y = -enemy_offset.x};
+            enemy.target_position = enemy_offset + chunk.world_rect.center;
+        } else {
+            enemy_offset = Vec2F{.x = -enemy_offset.y, .y = enemy_offset.x};
+            enemy.target_position = enemy_offset + chunk.world_rect.center;
+        }
+    }
+
+    Player& player = state.player;
     if (chunk.has_player) {
         player.prev_position = player.transform.position;
 
@@ -95,6 +116,19 @@ void UpdateChunks(GameState& state) {
             state.player.transform.position = Vec2F{
                 .x = std::lerp(state.player.prev_position.x, state.player.target_position.x, t),
                 .y = std::lerp(state.player.prev_position.y, state.player.target_position.y, t),
+            };
+        }
+
+        for (Slot<Enemy>& slot : state.enemies.data) {
+            if (!slot.alive ||
+                !collision_rect_rect(slot.ref.collider.rect.at_position(slot.ref.transform.position), chunk.world_rect))
+                continue;
+
+            Enemy& enemy = slot.ref;
+
+            enemy.transform.position = Vec2F{
+                .x = std::lerp(enemy.prev_position.x, enemy.target_position.x, t),
+                .y = std::lerp(enemy.prev_position.y, enemy.target_position.y, t),
             };
         }
 

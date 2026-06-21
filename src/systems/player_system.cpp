@@ -15,8 +15,10 @@ void Update(Player& player, GameState& state) {
 
     velocity.x = 0;
 
-    if (input_frame.is_key_down(Key::Left)) velocity.x += -player.speed;
-    if (input_frame.is_key_down(Key::Right)) velocity.x += player.speed;
+    if (player.grounded) {
+        if (input_frame.is_key_down(Key::Left)) velocity.x += -player.speed;
+        if (input_frame.is_key_down(Key::Right)) velocity.x += player.speed;
+    }
 
     velocity.y += GRAVITY * delta_time;
     if (velocity.y > TERMINAL_VELOCITY) velocity.y = TERMINAL_VELOCITY;
@@ -37,17 +39,14 @@ void Update(Player& player, GameState& state) {
         velocity.x = 0;
     }
 
-    if (velocity.x != 0) player.facing_left = velocity.x < 0;
-
     player.transform.position.y += velocity.y * delta_time;
     if (check_collision_walls(player.transform.position, player.collider, chunk->walls)) {
         player.transform.position.y -= velocity.y * delta_time;
-
-        if (velocity.y > 0) player.grounded = true;
-
         velocity.y = 0;
     }
 
+    if (velocity.x != 0) player.facing_left = velocity.x < 0;
+    player.grounded = velocity.y == 0;
     player.velocity = velocity;
 
     // In air

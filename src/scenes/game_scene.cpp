@@ -50,7 +50,7 @@ void UpdateInputs(GameState& state) {
         for (Chunk& chunk : state.chunks) {
             if (!chunk.hovered) continue;
 
-            rotate_chunk(chunk, -90, state.player);
+            rotate_chunk(chunk, -90, state);
 
             break;
         }
@@ -60,7 +60,7 @@ void UpdateInputs(GameState& state) {
         for (Chunk& chunk : state.chunks) {
             if (!chunk.hovered) continue;
 
-            rotate_chunk(chunk, 90, state.player);
+            rotate_chunk(chunk, 90, state);
 
             break;
         }
