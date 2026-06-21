@@ -9,7 +9,7 @@
 struct Wall {
     Transform2D transform;
     Collider collider =
-        Collider(Rect{.position = Vec2F{}, .size = Vec2F{.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}});
+        Collider(Rect{.center = Vec2F{}, .size = Vec2F{.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}});
     SpriteInfo sprite = {"wall", {.x = DEFAULT_SPRITE_SIZE, .y = DEFAULT_SPRITE_SIZE}, {.x = 1, .y = 1}};
 
     GridInfo grid_info;

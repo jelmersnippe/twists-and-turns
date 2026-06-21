@@ -28,7 +28,7 @@ struct Collider {
                 render_circle(position + this->center, radius, color, true);
                 break;
             case ColliderType::Box:
-                render_rectangle(position + this->rect.position, this->rect.size, color, true, true);
+                render_rectangle(position + this->rect.center, this->rect.size, color, true, true);
                 break;
         }
     }
@@ -38,7 +38,7 @@ struct Collider {
             case ColliderType::Circle:
                 return {this->center + position, this->radius};
             case ColliderType::Box:
-                return Collider({.position = this->rect.position + position, .size = this->rect.size});
+                return Collider({.center = this->rect.center + position, .size = this->rect.size});
         }
     }
 };

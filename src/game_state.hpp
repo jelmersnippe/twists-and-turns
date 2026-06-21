@@ -32,8 +32,8 @@ struct Chunk {
     std::vector<Spike> spikes{};
     float current_rotation_time = 0.0f;
 
+    bool has_player = false;
     bool hovered = false;
-    bool can_rotate = true;
 };
 
 struct GameState {
@@ -77,8 +77,9 @@ struct GameState {
 
                 const Vec2F chunk_center = chunk_world_top_left + (world_chunk_size * 0.5f);
 
-                Chunk current_chunk = {.world_rect = {.position = chunk_center, .size = world_chunk_size},
-                                       .grid_rect = {.position = Vec2F::from_vec2(chunk_grid_top_left),
+                Chunk current_chunk = {.world_rect = {.center = chunk_center, .size = world_chunk_size},
+                                       .grid_rect = {.center = Vec2F::from_vec2(chunk_grid_top_left) +
+                                                               Vec2F::from_vec2(info.chunk_size) * 0.5f,
                                                      .size = Vec2F::from_vec2(info.chunk_size)}};
 
                 for (int y = 0; y < info.chunk_size.y; y++) {
@@ -101,6 +102,7 @@ struct GameState {
                             const Player player = Player{.transform = {.position = world_position}};
 
                             this->player = player;
+                            current_chunk.has_player = true;
                         }
                     }
                 }

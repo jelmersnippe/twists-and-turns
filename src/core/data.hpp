@@ -166,10 +166,10 @@ struct Vec2F {
 };
 
 struct Rect {
-    Vec2F position;
+    Vec2F center;
     Vec2F size;
 
-    Rect operator*(const float& value) const { return Rect{.position = position * value, .size = size * value}; }
+    Rect operator*(const float& value) const { return Rect{.center = center * value, .size = size * value}; }
 
-    Vec2F top_left = this->position - this->size * 0.5f;
+    Vec2F top_left = this->center - this->size * 0.5f;
 };

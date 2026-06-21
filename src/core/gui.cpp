@@ -1,5 +1,6 @@
 #include "core/gui.hpp"
 #include "core/data.hpp"
+#include "core/delta_time.hpp"
 #include "core/input.hpp"
 #include "core/key.hpp"
 #include "raylib.h"
@@ -29,7 +30,7 @@ bool get_and_update_ui_state(UI* ui, UI::ElementId id, UI::HoldParams hold_param
     bool result = false;
 
     if (id == ui->active) {
-        ui->active_for += GetFrameTime();
+        ui->active_for += get_delta_time();
         if (input_frame.is_mouse_released(Mouse::Left)) {
             // If mouse went up and hot
             if (id == ui->hot) result = true;
@@ -57,8 +58,8 @@ bool get_and_update_ui_state(UI* ui, UI::ElementId id, UI::HoldParams hold_param
         auto mouse_pos = GetMousePosition();
         if ((ui->active == id && hold_params.allow_outside) ||
             CheckCollisionPointRec(mouse_pos, Rectangle{
-                                                  .x = (float)rect.position.x,
-                                                  .y = (float)rect.position.y,
+                                                  .x = (float)rect.center.x,
+                                                  .y = (float)rect.center.y,
                                                   .width = (float)rect.size.x,
                                                   .height = (float)rect.size.y,
                                               })) {
@@ -158,7 +159,7 @@ void UI::end_ui() {
     for (Element& element : this->current_render_elements) {
         assert(element_rects.find(element.id) == element_rects.end() && "Can not have duplicate element ids.");
 
-        element_rects[element.id] = Rect{.position = element.position, .size = element.container_size};
+        element_rects[element.id] = Rect{.center = element.position, .size = element.container_size};
     }
 
     this->previous_render_elements = element_rects;
@@ -415,8 +416,8 @@ void UI::color_picker(ElementId id, Color& color) {
         assert(rect_it != this->previous_render_elements.end() && "Color rect used but not found in previous render.");
 
         Rect rect = rect_it->second;
-        Vec2F rect_coords = {.x = std::clamp(mouse_pos.x - rect.position.x, 0.0f, rect.size.x),
-                             .y = std::clamp(mouse_pos.y - rect.position.y, 0.0f, rect.size.y)};
+        Vec2F rect_coords = {.x = std::clamp(mouse_pos.x - rect.center.x, 0.0f, rect.size.x),
+                             .y = std::clamp(mouse_pos.y - rect.center.y, 0.0f, rect.size.y)};
         Vec2F sv_value = {
             .x = std::clamp((float)rect_coords.x / (float)color_rect_size.x, 0.0f, 1.0f),
             .y = std::clamp(((float)color_rect_size.y - rect_coords.y) / (float)color_rect_size.y, 0.0f, 1.0f)};
@@ -436,7 +437,7 @@ void UI::color_picker(ElementId id, Color& color) {
         assert(strip_it != this->previous_render_elements.end() && "Hue strip used but not found in previous render.");
 
         Rect strip = strip_it->second;
-        int strip_x = std::clamp(mouse_pos.x - strip.position.x, 0.0f, strip.size.x);
+        int strip_x = std::clamp(mouse_pos.x - strip.center.x, 0.0f, strip.size.x);
         float h_value = std::clamp(((float)strip_x / (float)hue_strip_size.x) * 360.0f, 0.0f, 359.9f);
 
         const Vector3 hsv = ColorToHSV(color);

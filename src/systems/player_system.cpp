@@ -1,11 +1,11 @@
 #include "player_system.hpp"
 
 #include "core/collision.hpp"
+#include "core/delta_time.hpp"
 #include "core/input.hpp"
 #include "entities/player.hpp"
 #include "game_state.hpp"
 #include "scenes/game_over_scene.hpp"
-#include "scenes/game_scene.hpp"
 #include "systems/scene_manager.hpp"
 
 bool check_collision_walls(const Vec2F& position, const Collider& collider, const std::vector<Wall>& walls) {
@@ -32,7 +32,7 @@ const float TERMINAL_VELOCITY = 1000;
 const float GRAVITY = 2000;
 
 void Update(Player& player, GameState& state) {
-    const float delta_time = GetFrameTime();
+    const float delta_time = get_delta_time();
     Vec2F velocity = player.velocity;
 
     velocity.x = 0;
@@ -48,8 +48,6 @@ void Update(Player& player, GameState& state) {
     const auto chunk = std::ranges::find_if(state.chunks, [&player](const Chunk& chunk) {
         return collision_point_rect(player.transform.position, chunk.world_rect);
     });
-
-    assert(chunk != state.chunks.end() && "Player not inside of a chunk");
 
     if (check_collision_walls(player.transform.position, player.collider, chunk->walls)) {
         player.transform.position.x -= velocity.x * delta_time;
